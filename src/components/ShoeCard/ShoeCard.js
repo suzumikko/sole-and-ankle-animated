@@ -73,20 +73,28 @@ const Wrapper = styled.article`
   position: relative;
 `;
 
+const ImageWrapper = styled.div`
+  border-radius: 16px 16px 4px 4px;
+  overflow: hidden;
+`;
+
 const Image = styled.img`
   width: 100%;
   transition: transform 350ms ease-in;
-`;
+  will-change: transform; // prevent flicker, makes animation smoother
+  transform-origin: 50% 75%; // set transform origin to center of shoe
+  display: block; // prevent extra magic space below image
 
-const ImageWrapper = styled.div`
-  overflow: hidden;
-  border-radius: 16px 16px 4px 4px;
-
-  &:hover ${Image} {
-    transform: scale(1.1);
-    transition: transform 150ms ease-out;
+  // with hover-query this one does not apply to mobile devices
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    ${Link}:hover &, ${Link}:focus & {
+      transform: scale(1.1);
+      transition: transform 150ms ease-out;
+    }
   }
 `;
+
+
 
 const Row = styled.div`
   font-size: 1rem;
