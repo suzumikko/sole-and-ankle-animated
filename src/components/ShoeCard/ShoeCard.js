@@ -1,9 +1,10 @@
 import React from 'react';
-import styled from 'styled-components/macro';
+import styled, { keyframes } from 'styled-components/macro';
 
 import { WEIGHTS } from '../../constants';
 import { formatPrice, pluralize, isNewShoe } from '../../utils';
 import Spacer from '../Spacer';
+import UnstyledButton from '../UnstyledButton';
 
 const ShoeCard = ({
   slug,
@@ -12,7 +13,7 @@ const ShoeCard = ({
   price,
   salePrice,
   releaseDate,
-  numOfColors,
+  numOfColors
 }) => {
   // There are 3 variants possible, based on the props:
   //   - new-release
@@ -36,6 +37,10 @@ const ShoeCard = ({
       <Wrapper>
         <ImageWrapper>
           <Image alt="" src={imageSrc} />
+          <ImageOverlay>
+            <Backdrop></Backdrop>
+            <AddCartButton>Add to cart</AddCartButton>
+          </ImageOverlay>
         </ImageWrapper>
         {variant === 'on-sale' && <SaleFlag>Sale</SaleFlag>}
         {variant === 'new-release' && <NewFlag>Just released!</NewFlag>}
@@ -47,7 +52,7 @@ const ShoeCard = ({
               '--color':
                 variant === 'on-sale' ? 'var(--color-gray-700)' : undefined,
               '--text-decoration':
-                variant === 'on-sale' ? 'line-through' : undefined,
+                variant === 'on-sale' ? 'line-through' : undefined
             }}
           >
             {formatPrice(price)}
@@ -71,11 +76,67 @@ const Link = styled.a`
 
 const Wrapper = styled.article`
   position: relative;
+  transition: transform 0.3s;
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    ${Link}:hover &, ${Link}:focus & {
+      transform: perspective(600px) rotateY(-30deg);
+    }
+  }
 `;
 
 const ImageWrapper = styled.div`
   border-radius: 16px 16px 4px 4px;
   overflow: hidden;
+  position: relative;
+`;
+
+const ImageOverlay = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  will-change: transform;
+  transform: translateY(-100%);
+  display: grid;
+  place-content: center;
+  transition: 250ms ease-out;
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    ${Link}:hover &, ${Link}:focus & {
+      transform: translateY(0);
+    }
+  }
+`;
+
+const AddCartButton = styled(UnstyledButton)`
+  color: white;
+  border: 2px solid white;
+  padding: 8px 16px;
+  position: relative;
+  text-transform: uppercase;
+  font-size: 0.675rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+`;
+
+const Backdrop = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background-color: black;
+  opacity: 0;
+  will-change: opacity;
+  transition: 250ms ease;
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    ${Link}:hover &, ${Link}:focus & {
+      opacity: 0.7;
+    }
+  }
 `;
 
 const Image = styled.img`
@@ -93,8 +154,6 @@ const Image = styled.img`
     }
   }
 `;
-
-
 
 const Row = styled.div`
   font-size: 1rem;
@@ -133,6 +192,29 @@ const Flag = styled.div`
   font-weight: ${WEIGHTS.bold};
   color: var(--color-white);
   border-radius: 2px;
+  overflow: hidden;
+
+  &::after {
+    background: #fff;
+    content: '';
+    height: 155px;
+    top: -50px;
+    left: -75px;
+    opacity: 0.2;
+    position: absolute;
+    transform: rotate(35deg);
+    transition: all 550ms cubic-bezier(0.19, 1, 0.22, 1);
+    transition-delay: 0ms;
+    width: 50px;
+    z-index: 1;
+
+    @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+      ${Link}:hover &, ${Link}:focus & {
+        left: 120%;
+        transition-delay: 250ms;
+      }
+    }
+  }
 `;
 
 const SaleFlag = styled(Flag)`
