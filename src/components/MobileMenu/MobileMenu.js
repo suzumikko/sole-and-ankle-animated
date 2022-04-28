@@ -1,13 +1,33 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
-import styled, { keyframes } from 'styled-components/macro';
+import styled, { keyframes, css } from 'styled-components/macro';
 import { DialogOverlay, DialogContent } from '@reach/dialog';
 
-import { QUERIES, WEIGHTS } from '../../constants';
+import { WEIGHTS } from '../../constants';
 
 import UnstyledButton from '../UnstyledButton';
 import Icon from '../Icon';
 import VisuallyHidden from '../VisuallyHidden';
+
+const MIN_DELAY = 500;
+const getDelay = (index) => ({
+  '--transition-delay': MIN_DELAY + (index + 1) * 100 + 'ms'
+});
+
+const NavLinks = [
+  { link: '/sale', text: 'Sale' },
+  { link: '/new', text: 'New&nbsp;Releases' },
+  { link: '/men', text: 'Men' },
+  { link: '/women', text: 'Women' },
+  { link: '/kids', text: 'New&nbsp;Releases' },
+  { link: '/collections', text: 'Collections' }
+];
+
+const SubLinks = [
+  { link: '/terms', text: 'Terms and Conditions' },
+  { link: '/privacy', text: 'Privacy Policys' },
+  { link: '/contact', text: 'Contact Us' }
+];
 
 const MobileMenu = ({ isOpen, onDismiss }) => {
   return (
@@ -15,23 +35,30 @@ const MobileMenu = ({ isOpen, onDismiss }) => {
       <Backdrop />
       <Content aria-label="Menu">
         <ContentWrapper>
-          <CloseButton onClick={onDismiss}>
+          <CloseButton style={getDelay(-1)} onClick={onDismiss}>
             <Icon id="close" />
             <VisuallyHidden>Dismiss menu</VisuallyHidden>
           </CloseButton>
           <Filler />
           <Nav>
-            <NavLink href="/sale">Sale</NavLink>
-            <NavLink href="/new">New&nbsp;Releases</NavLink>
-            <NavLink href="/men">Men</NavLink>
-            <NavLink href="/women">Women</NavLink>
-            <NavLink href="/kids">Kids</NavLink>
-            <NavLink href="/collections">Collections</NavLink>
+            {NavLinks.map((link, index) => (
+              <NavLink
+                key={'navlink_' + index}
+                href={link.link}
+                dangerouslySetInnerHTML={{ __html: link.text }}
+                style={getDelay(index)}
+              ></NavLink>
+            ))}
           </Nav>
           <Footer>
-            <SubLink href="/terms">Terms and Conditions</SubLink>
-            <SubLink href="/privacy">Privacy Policy</SubLink>
-            <SubLink href="/contact">Contact Us</SubLink>
+            {SubLinks.map((link, index) => (
+              <SubLink
+                key={'sublink_' + index}
+                href={link.link}
+                dangerouslySetInnerHTML={{ __html: link.text }}
+                style={getDelay(index + NavLinks.length)}
+              ></SubLink>
+            ))}
           </Footer>
         </ContentWrapper>
       </Content>
@@ -47,13 +74,29 @@ const fadeIn = keyframes`
     opacity: 1
   }
 `;
-
-const slideIn = keyframes`
+const slideInX = keyframes`
   from {
     transform: translateX(100%)
   }
   to {
     transform: translateX(0)
+  }
+`;
+const slideInY = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-200%)
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0)
+  }
+`;
+
+const slideInYAnimationStyles = css`
+  @media (prefers-reduced-motion: no-preference) {
+    animation: ${slideInY} 300ms both cubic-bezier(0, 0.6, 0.32, 1.06);
+    animation-delay: var(--transition-delay);
   }
 `;
 
@@ -88,7 +131,7 @@ const Content = styled(DialogContent)`
   padding: 24px 32px;
 
   @media (prefers-reduced-motion: no-preference) {
-    animation: ${slideIn} 500ms both cubic-bezier(0, 0.6, 0.32, 1.06);
+    animation: ${slideInX} 500ms both cubic-bezier(0, 0.6, 0.32, 1.06);
     animation-delay: 200ms;
   }
 `;
@@ -97,14 +140,14 @@ const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  animation: ${fadeIn} 600ms both;
-  animation-delay: 400ms;
+  animation: ${fadeIn} 800ms both ${MIN_DELAY + 'ms'};
 `;
 const CloseButton = styled(UnstyledButton)`
   position: absolute;
   top: 10px;
   right: var(--overfill);
   padding: 16px;
+  ${slideInYAnimationStyles}
 `;
 
 const Nav = styled.nav`
@@ -119,6 +162,7 @@ const NavLink = styled.a`
   text-decoration: none;
   font-size: 1.125rem;
   text-transform: uppercase;
+  ${slideInYAnimationStyles}
 
   &:first-of-type {
     color: var(--color-secondary);
@@ -140,6 +184,7 @@ const SubLink = styled.a`
   color: var(--color-gray-700);
   font-size: 0.875rem;
   text-decoration: none;
+  ${slideInYAnimationStyles}
 `;
 
 export default MobileMenu;
